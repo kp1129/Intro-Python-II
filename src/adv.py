@@ -1,10 +1,11 @@
 from room import Room
+from player import Player
 
 # Declare all the rooms
 
 room = {
     'outside':  Room("Outside Cave Entrance",
-                     "North of you, the cave mount beckons"),
+                     "North of you, the cave mount beckons."),
 
     'foyer':    Room("Foyer", """Dim light filters in from the south. Dusty
 passages run north and east."""),
@@ -49,3 +50,47 @@ room['treasure'].s_to = room['narrow']
 # Print an error message if the movement isn't allowed.
 #
 # If the user enters "q", quit the game.
+
+
+player_name = input('Welcome! Please choose a name for your character: ')
+new_player = Player(player_name, 'Outside Cave Entrance')
+current_room = room['outside']
+is_playing = True
+
+print(f'{new_player.name}, you are standing in front of the {current_room.name}. You take some time to look around. {current_room.description}')
+
+while is_playing:
+
+    user_choice = input('Where would you like to go from here? n/s/e/w: ')
+
+    if user_choice == 'q':
+        print('Thanks for playing!')
+        is_playing = False
+    elif user_choice == 'n':
+        if type(current_room.n_to) is Room:
+                current_room = current_room.n_to
+                new_player.current_room = current_room.name
+                print(f'You are now in the {current_room.name}. {current_room.description}')
+        else:
+            print('Sorry, you cannot go there. Pick another direction.')        
+    elif user_choice == 's':
+        if type(current_room.s_to) is Room:
+                current_room = current_room.s_to
+                new_player.current_room = current_room.name
+                print(f'You are now in the {current_room.name}. {current_room.description}')
+        else:
+            print('Sorry, you cannot go there. Pick another direction.') 
+    elif user_choice == 'e':
+        if type(current_room.e_to) is Room:
+                current_room = current_room.e_to
+                new_player.current_room = current_room.name
+                print(f'You are now in the {current_room.name}. {current_room.description}')
+        else:
+            print('Sorry, you cannot go there. Pick another direction.')                   
+    elif user_choice == 'w':
+        if type(current_room.w_to) is Room:
+                current_room = current_room.w_to
+                new_player.current_room = current_room.name
+                print(f'You are now in the {current_room.name}. {current_room.description}')
+        else:
+            print('Sorry, you cannot go there. Pick another direction.')         
