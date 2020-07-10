@@ -9,21 +9,18 @@ room = {
                      "North of you, the cave mount beckons.", None),
 
     'foyer':    Room("Foyer", """Dim light filters in from the south. Dusty
-passages run north and east.""", Item("map", "Migrating Moon Map is infused with powerful magic that can lead you to whatever it is that your heart desires...no matter where in the universe it is.")),
+passages run north and east.""", Item("map", "The Migrating Moon Map is infused with powerful magic\nthat can lead you to whatever it is that your heart desires...\nNo matter where in the universe it is.")),
 
     'overlook': Room("Grand Overlook", """A steep cliff appears before you, falling
 into the darkness. Ahead to the north, a light flickers in
 the distance, but there is no way across the chasm.""", Item("sword",
-                "The magical Elven Sword makes its bearer impossible to defeat.")),
+                "The magical Elven Sword makes its bearer impossible to defeat.\nYour enemies are already trembling in their boots...")),
 
     'narrow':   Room("Narrow Passage", """The narrow passage bends here from west
-to north. The smell of gold permeates the air.""", Item("scroll", "Ancient Scroll of Mysteries written by the exiled elven mages in the world before.")),
+to north. The smell of gold permeates the air.""", Item("scroll", "Ah, the Ancient Scroll of Forbidden Mysteries written\nby the exiled elven mages in the world before.\nYou will never sleep again...")),
 
-    'treasure': Room("Treasure Chamber", """You've found the long-lost treasure
-chamber! Sadly, it has already been completely emptied by
-earlier adventurers. The only exit is to the south.""", None),
+    'treasure': Room("Treasure Chamber", """You've found it!\nSadly, it has already been completely emptied by earlier adventurers.\nThe only exit is to the south.""", None),
 }
-
 
 # Link rooms together
 
@@ -36,16 +33,6 @@ room['narrow'].w_to = room['foyer']
 room['narrow'].n_to = room['treasure']
 room['treasure'].s_to = room['narrow']
 
-# declare all the items
-
-# item = {
-#     'sword': Item("Elven Sword",
-#                 "A magical elven sword that makes its bearer impossible to defeat"),
-#     'scroll': Item("Scroll of Mysteries", "An ancient scroll written by the exiled elven mages in the world before"),
-#     'map': Item("Migrating Moon Map", "A map infused with powerful magic that can lead you to whatever it is that your heart desires...no matter where in the universe it is")            
-# }
-
-#
 # Main
 #
 
@@ -62,88 +49,73 @@ room['treasure'].s_to = room['narrow']
 #
 # If the user enters "q", quit the game.
 
-
+# set up new player
 player_name = input('Welcome! Please choose a name for your character: ')
 new_player = Player(player_name, 'Outside Cave Entrance')
-current_room = room['outside']
 is_playing = True
-
-print(f'{new_player.name}, you are standing in front of the {current_room.name}. You take some time to look around. {current_room.description}')
+# set up starting location
+current_room = room['outside']
+print(f'\n{new_player.name}, you are standing in front of the {current_room.name}. '
+        + f'You take some time to look around.\n{current_room.description}')
 
 while is_playing:
-
-    user_choice = input('Where would you like to go from here? [n] [s] [e] [w]: ')
+    
+    user_choice = input('\nWhere would you like to go from here?\n[n] [s] [e] [w] to move'
+                        + '\n[get] and [drop] to pick up/drop loot\nor [q] to quit: ')
 
     if user_choice == 'q':
-        print('Thanks for playing!')
+        print('\nThanks for playing!\n')
         is_playing = False
 
     elif user_choice == 'get':
-        if len(current_room.items) > 0:
-            new_player.items.append(current_room.items[0])
-            del current_room.items[0]
-            new_item = new_player.items[-1]
-            print(f"You picked up a {new_item}. Use it wisely.")
+        if len(current_room.items) > 0 and current_room.items[0] != None:
+            current_room.display_items()
+            item_to_get = input('\nName of item you want to pick up: ')
+            item_picked_up = False
+            for item in current_room.items:
+                if item.name == item_to_get.lower():
+                    item_picked_up = new_player.get(item)
+                    current_room.items.remove(item)
+            if not item_picked_up:
+                print('\nOops! Looks like there is no such item here')
+        else:
+            print('\nThis room has no loot :(')
             
     elif user_choice == 'drop':
         if len(new_player.items) > 0:
-            print('You are carrying the following items:')
-            for item in new_player.items:
-                print(item.name)
-            item_to_drop = input('Which item do you want to stash in this room: ')
-            item_dropped = False
-            for item in new_player.items:
-                if item.name == item_to_drop.lower():
-                    new_player.drop(item_to_drop.lower())
-                    current_room.items.append(item)
-                    item_dropped = True
-            if not item_dropped:
-                print("Hmm, you don't have this item on you.")    
+            new_player.display_items()
+            item_to_drop = input('\nName of item you want to stash in this room: ')
+            item_dropped = new_player.drop(item_to_drop.lower())
+            if item_dropped:
+                current_room.items.append(item_dropped)
         else:
-            print("You have no items. Try exploring more rooms.")           
+            print("\nYou have no items.")           
 
     elif user_choice == 'n':
         if type(current_room.n_to) is Room:
                 current_room = current_room.n_to
                 new_player.current_room = current_room.name
-                print(f'You are now in the {current_room.name}. {current_room.description}')
-                if len(current_room.items) > 0 and current_room.items[0] != None:
-                    print("This room contains the following items: ")
-                    for item in current_room.items:
-                        print(f"Item: {item.name}: {item.description}")
-                    print("To pick up an item, enter [get ITEM]")    
+                current_room.explore()   
         else:
-            print('Sorry, you cannot go there. Pick another direction.')        
+            new_player.hit_a_wall()        
     elif user_choice == 's':
         if type(current_room.s_to) is Room:
                 current_room = current_room.s_to
                 new_player.current_room = current_room.name
-                print(f'You are now in the {current_room.name}. {current_room.description}')
-                if len(current_room.items) > 0 and current_room.items[0] != None:
-                    print("This room contains the following items: ")
-                    for item in current_room.items:
-                        print(item)
+                current_room.explore()
         else:
-            print('Sorry, you cannot go there. Pick another direction.') 
+            new_player.hit_a_wall() 
     elif user_choice == 'e':
         if type(current_room.e_to) is Room:
                 current_room = current_room.e_to
                 new_player.current_room = current_room.name
-                print(f'You are now in the {current_room.name}. {current_room.description}')
-                if len(current_room.items) > 0 and current_room.items[0] != None:
-                    print("This room contains the following items: ")
-                    for item in current_room.items:
-                        print(item)
+                current_room.explore()
         else:
-            print('Sorry, you cannot go there. Pick another direction.')                   
+            new_player.hit_a_wall()                   
     elif user_choice == 'w':
         if type(current_room.w_to) is Room:
                 current_room = current_room.w_to
                 new_player.current_room = current_room.name
-                print(f'You are now in the {current_room.name}. {current_room.description}')
-                if len(current_room.items) > 0 and current_room.items[0] != None:
-                    print("This room contains the following items: ")
-                    for item in current_room.items:
-                        print(item)
+                current_room.explore()
         else:
-            print('Sorry, you cannot go there. Pick another direction.')         
+            new_player.hit_a_wall()         
