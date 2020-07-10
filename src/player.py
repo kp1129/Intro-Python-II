@@ -5,3 +5,10 @@ class Player:
         self.name = name
         self.current_room = current_room
         self.items = []
+
+    def drop(self, item):
+        for i in self.items:
+            if i.name == item:
+                self.items.remove(i)
+                print(f"You stashed the {item} in this room. Remember this for later.")
+            

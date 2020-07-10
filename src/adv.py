@@ -84,8 +84,23 @@ while is_playing:
             del current_room.items[0]
             new_item = new_player.items[-1]
             print(f"You picked up a {new_item}. Use it wisely.")
-            # for item in current_room.items:
-            #     print(item.name + ": " + item.description)
+            
+    elif user_choice == 'drop':
+        if len(new_player.items) > 0:
+            print('You are carrying the following items:')
+            for item in new_player.items:
+                print(item.name)
+            item_to_drop = input('Which item do you want to stash in this room: ')
+            item_dropped = False
+            for item in new_player.items:
+                if item.name == item_to_drop.lower():
+                    new_player.drop(item_to_drop.lower())
+                    current_room.items.append(item)
+                    item_dropped = True
+            if not item_dropped:
+                print("Hmm, you don't have this item on you.")    
+        else:
+            print("You have no items. Try exploring more rooms.")           
 
     elif user_choice == 'n':
         if type(current_room.n_to) is Room:
